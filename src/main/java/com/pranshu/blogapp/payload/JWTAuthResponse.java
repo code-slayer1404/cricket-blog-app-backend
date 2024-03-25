@@ -1,4 +1,4 @@
-package com.pranshu.blogapp.security;
+package com.pranshu.blogapp.payload;
 
 import lombok.Data;
 
