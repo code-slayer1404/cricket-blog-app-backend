@@ -1,9 +1,11 @@
 package com.pranshu.blogapp.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.pranshu.blogapp.entity.User;
 
 public interface UserRepo extends JpaRepository<User,Integer> {
-    User findByUsername(String username);
+    Optional<User> findByUsername(String username);
 }

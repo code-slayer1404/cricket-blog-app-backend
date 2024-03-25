@@ -2,6 +2,8 @@ package com.pranshu.blogapp.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -13,38 +15,55 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.pranshu.blogapp.security.JWTAuthenticationEntryPoint;
 import com.pranshu.blogapp.security.JWTAuthenticationFilter;
+import com.pranshu.blogapp.security.JWTTokenHelper;
 import com.pranshu.blogapp.util.MyUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    @Autowired
-    private JWTAuthenticationFilter jwtAuthenticationFilter;
+
     @Autowired
     private JWTAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
+    @Autowired
+    private JWTTokenHelper jwtTokenHelper;
+
     @Bean
     public UserDetailsService getUserDetailsService() {
         return new MyUserDetailsService();
     }
+
 
     @Bean
     public BCryptPasswordEncoder getBCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    @Bean
+    public JWTAuthenticationFilter getJwtAuthenticationFilter(){
+        return new JWTAuthenticationFilter(getUserDetailsService(),jwtTokenHelper);
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(c -> {
             c.disable();
         }).authorizeHttpRequests(authz -> {
-            authz.anyRequest().authenticated();
-        }).exceptionHandling(handling -> handling.authenticationEntryPoint(jwtAuthenticationEntryPoint)).sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+            authz.requestMatchers("/api/auth/login").permitAll().anyRequest().authenticated();
+        }).exceptionHandling(handling -> handling.authenticationEntryPoint(jwtAuthenticationEntryPoint))
+        .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
                 
-        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(getJwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         
 
         return http.build();
+    }
+
+    @Bean
+    public AuthenticationManager getAuthenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception{
+        return authenticationConfiguration.getAuthenticationManager();
     }
 
     
