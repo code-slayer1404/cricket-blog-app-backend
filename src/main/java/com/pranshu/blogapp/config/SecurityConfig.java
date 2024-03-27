@@ -27,6 +27,7 @@ public class SecurityConfig {
 
     @Autowired
     private JWTTokenHelper jwtTokenHelper;
+    
 
     @Bean
     public UserDetailsService getUserDetailsService() {
