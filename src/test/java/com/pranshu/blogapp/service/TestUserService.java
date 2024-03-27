@@ -1,6 +1,7 @@
 package com.pranshu.blogapp.service;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.pranshu.blogapp.entity.User;
 import com.pranshu.blogapp.payload.UserDTO;
@@ -36,6 +38,9 @@ public class TestUserService {
     @InjectMocks
     private UserServiceImpl userService;
 
+    @Mock
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
     @BeforeEach
     public void setUp() {
         System.out.println("I was executed");
@@ -47,7 +52,7 @@ public class TestUserService {
                 invocation -> {
                     User user = invocation.getArgument(0);
                     UserDTO userDTO = UserDTO.builder().id(user.getId()).name(user.getName())
-                            .username(user.getUsername()).build();
+                            .username(user.getUsername()).password(user.getPassword()).build();
                     return userDTO;
                 }); // mocking myMapper.toUserDTO(User)
 
@@ -132,6 +137,18 @@ public class TestUserService {
         List<UserDTO> retrievedUserDTOs = userService.getAllUsers();
 
         assertThat(retrievedUserDTOs.size()).isEqualTo(users.size());
+    }
+
+    @Test
+    public void userService_register_UserDTO(){
+        UserDTO userDTO = UserDTO.builder().id(1).name("user1").username("username1").password("pass1").build();
+        when(bCryptPasswordEncoder.encode(anyString())).thenReturn("hashed_password");
+
+        UserDTO registeresUserDTO = userService.registerUser(userDTO);
+
+        assertThat(registeresUserDTO).isNotNull();
+        assertThat(registeresUserDTO.getPassword()).isEqualTo("hashed_password");
+
     }
 
 
