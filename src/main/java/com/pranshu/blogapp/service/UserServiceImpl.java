@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 // import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -22,15 +23,14 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private MyMapper myMapper;
 
-    // @Autowired
-    // private BCryptPasswordEncoder bCryptPasswordEncoder;
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
     public UserDTO addUser(UserDTO userDTO) {
         User user = myMapper.toUser(userDTO);
         user.setRoles(new ArrayList<>());
         user.getRoles().add("USER"); // check
-        // user.setPassword( bCryptPasswordEncoder.encode(userDTO.getPassword())); //check
         User savedUser  = userRepo.save(user);
         return myMapper.toUserDTO(savedUser);
     }
@@ -40,7 +40,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepo.findById(user_id).orElseThrow();
 
         user.setName(userDTO.getName());
-        user.setPassword(userDTO.getPassword());
+        // user.setPassword(userDTO.getPassword());
         user.setUsername(userDTO.getUsername());
         
 
@@ -76,6 +76,16 @@ public class UserServiceImpl implements UserService {
         // ).toList();
 
         return usersDTO;
+    }
+
+    @Override
+    public UserDTO registerUser(UserDTO userDTO) {
+        User user = myMapper.toUser(userDTO);
+        user.setPassword(bCryptPasswordEncoder.encode(userDTO.getPassword()));
+        user.getRoles().add("USER");
+        User savedUser = userRepo.save(user);
+        return myMapper.toUserDTO(savedUser);
+
     }
 
 }

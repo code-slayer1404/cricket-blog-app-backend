@@ -1,5 +1,7 @@
 package com.pranshu.blogapp.controller;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.pranshu.blogapp.payload.JWTAuthRequest;
 import com.pranshu.blogapp.payload.JWTAuthResponse;
+import com.pranshu.blogapp.payload.UserDTO;
 import com.pranshu.blogapp.security.JWTTokenHelper;
+import com.pranshu.blogapp.service.UserService;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -25,8 +29,11 @@ public class AuthController {
     @Autowired
     private AuthenticationManager authenticationManager;
 
+    @Autowired
+    private UserService userService;
+
     @PostMapping("/login")
-    public ResponseEntity<JWTAuthResponse> createToken(@RequestBody JWTAuthRequest request) {
+    public ResponseEntity<JWTAuthResponse> login(@RequestBody JWTAuthRequest request) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
         if(authentication.isAuthenticated()){
             String token = jwtTokenHelper.generateToken(request.getUsername());
@@ -38,6 +45,12 @@ public class AuthController {
             return new ResponseEntity<JWTAuthResponse>(HttpStatus.FORBIDDEN);
 
         }
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<UserDTO> register(@RequestBody UserDTO userDTO){
+        UserDTO registeredUser = userService.registerUser(userDTO);
+        return ResponseEntity.of(Optional.of(registeredUser));
     }
 
 }
