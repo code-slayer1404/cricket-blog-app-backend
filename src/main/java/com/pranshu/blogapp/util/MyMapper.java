@@ -12,6 +12,7 @@ public class MyMapper {
         user.setName(userDTO.getName());
         user.setUsername(userDTO.getUsername());
         user.setPassword(userDTO.getPassword());
+        user.setRoles(userDTO.getRoles());
 
         return user;
     }
@@ -23,6 +24,7 @@ public class MyMapper {
         userDTO.setName(user.getName());
         userDTO.setUsername(user.getUsername());
         userDTO.setPassword(user.getPassword());
+        userDTO.setRoles(user.getRoles());
         return userDTO;
     }
 }

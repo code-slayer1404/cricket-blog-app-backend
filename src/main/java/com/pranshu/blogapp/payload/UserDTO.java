@@ -1,5 +1,8 @@
 package com.pranshu.blogapp.payload;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,6 +21,8 @@ public class UserDTO {
     private String name;
     private String username;
     private String password;
+    @Builder.Default
+    private List<String> roles= new ArrayList<>();
 
 
 }
