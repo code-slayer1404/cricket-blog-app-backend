@@ -49,7 +49,7 @@ public class SecurityConfig {
         http.csrf(c -> {
             c.disable();
         }).authorizeHttpRequests(authz -> {
-            authz.requestMatchers("/api/auth/login").permitAll().anyRequest().authenticated();
+            authz.requestMatchers("/api/auth/**").permitAll().anyRequest().authenticated();
         }).exceptionHandling(handling -> handling.authenticationEntryPoint(jwtAuthenticationEntryPoint))
         .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
