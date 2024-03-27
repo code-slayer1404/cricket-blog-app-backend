@@ -42,7 +42,7 @@ public class TestUserService {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @BeforeEach
-    public void setUp() {
+    public void init() {
         System.out.println("I was executed");
         lenient().when(userRepo.save(any(User.class))).thenAnswer(invocation -> {
             return invocation.getArgument(0);
