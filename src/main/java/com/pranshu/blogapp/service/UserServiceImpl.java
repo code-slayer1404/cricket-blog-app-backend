@@ -30,18 +30,17 @@ public class UserServiceImpl implements UserService {
         User user = myMapper.toUser(userDTO);
         user.setRoles(new ArrayList<>());
         user.getRoles().add("USER"); // check
-        User savedUser  = userRepo.save(user);
+        User savedUser = userRepo.save(user);
         return myMapper.toUserDTO(savedUser);
     }
 
     @Override
-    public UserDTO updateUser(UserDTO userDTO,int user_id) {
+    public UserDTO updateUser(UserDTO userDTO, int user_id) {
         User user = userRepo.findById(user_id).orElseThrow();
 
         user.setName(userDTO.getName());
         // user.setPassword(userDTO.getPassword());
         user.setUsername(userDTO.getUsername());
-        
 
         User savedUser = userRepo.save(user);
         return myMapper.toUserDTO(savedUser);
@@ -64,14 +63,13 @@ public class UserServiceImpl implements UserService {
     public List<UserDTO> getAllUsers() {
         List<User> users = userRepo.findAll();
         List<UserDTO> usersDTO = users.stream().map(
-            (e)->{
-                return myMapper.toUserDTO(e);
-            }
-        ).collect(Collectors.toList());
+                (e) -> {
+                    return myMapper.toUserDTO(e);
+                }).collect(Collectors.toList());
         // List<UserDTO> usersDTO = users.stream().map(
-        //     (e)->{
-        //         return myMapper.toUserDTO(e);
-        //     }
+        // (e)->{
+        // return myMapper.toUserDTO(e);
+        // }
         // ).toList();
 
         return usersDTO;
@@ -79,12 +77,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO registerUser(UserDTO userDTO) {
-        User user = myMapper.toUser(userDTO);
-        user.setPassword(bCryptPasswordEncoder.encode(userDTO.getPassword()));
-        user.getRoles().add("USER");
-        User savedUser = userRepo.save(user);
-        return myMapper.toUserDTO(savedUser);
-
+        try {
+            User user = myMapper.toUser(userDTO);
+            user.setPassword(bCryptPasswordEncoder.encode(userDTO.getPassword()));
+            user.getRoles().add("USER");
+            User savedUser = userRepo.save(user);
+            return myMapper.toUserDTO(savedUser);
+        } catch (Exception e) {
+            throw new RuntimeException("user cannot be registered! try with a different email");
+        }
     }
 
 }

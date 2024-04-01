@@ -11,6 +11,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.cors.CorsConfigurationSource;
+
+import java.util.Arrays;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.pranshu.blogapp.security.JWTAuthenticationEntryPoint;
@@ -49,7 +56,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(c -> {
             c.disable();
-        }).authorizeHttpRequests(authz -> {
+        })
+        .cors(c->c.configurationSource(getCorsConfigurationSource()))
+        .authorizeHttpRequests(authz -> {
             authz.requestMatchers("/api/auth/**").permitAll().anyRequest().authenticated();
         }).exceptionHandling(handling -> handling.authenticationEntryPoint(jwtAuthenticationEntryPoint))
         .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
@@ -59,12 +68,29 @@ public class SecurityConfig {
 
         
 
+        
+
         return http.build();
     }
 
     @Bean
     public AuthenticationManager getAuthenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception{
         return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public CorsConfigurationSource getCorsConfigurationSource(){
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:[5173]"));
+        configuration.setAllowedMethods(Arrays.asList("*"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setExposedHeaders(Arrays.asList("*"));
+        // configuration.setMaxAge(5000l);
+        
+
+        UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
+        urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", configuration);
+        return urlBasedCorsConfigurationSource;
     }
 
     
