@@ -85,6 +85,7 @@ public class SecurityConfig {
         configuration.setAllowedMethods(Arrays.asList("*"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setExposedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
         // configuration.setMaxAge(5000l);
         
 

@@ -11,7 +11,7 @@ import com.pranshu.blogapp.repository.UserRepo;
 public class MyUserDetailsService implements UserDetailsService {
     @Autowired
     private UserRepo userRepo;
-
+    
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepo.findByUsername(username).orElseThrow();
