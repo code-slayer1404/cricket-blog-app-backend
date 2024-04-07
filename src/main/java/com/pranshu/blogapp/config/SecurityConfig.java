@@ -2,6 +2,7 @@ package com.pranshu.blogapp.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -59,7 +60,7 @@ public class SecurityConfig {
         })
         .cors(c->c.configurationSource(getCorsConfigurationSource()))
         .authorizeHttpRequests(authz -> {
-            authz.requestMatchers("/api/auth/**").permitAll().anyRequest().authenticated();
+            authz.requestMatchers("/api/auth/**").permitAll().requestMatchers(HttpMethod.GET).permitAll().anyRequest().authenticated();
         }).exceptionHandling(handling -> handling.authenticationEntryPoint(jwtAuthenticationEntryPoint))
         .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
@@ -81,7 +82,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource getCorsConfigurationSource(){
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:[5173]"));
+        // configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:[5173]"));
+        configuration.setAllowedOriginPatterns(Arrays.asList("http://myawsbucket1404.s3-website.ap-south-1.amazonaws.com/","http://localhost:[5173]"));
         configuration.setAllowedMethods(Arrays.asList("*"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setExposedHeaders(Arrays.asList("*"));

@@ -37,7 +37,7 @@ public class PostController {
         return ResponseEntity.of(Optional.of(result));
     }
     @DeleteMapping("/posts/{post_id}")
-    public ResponseEntity<PostDTO> deletePost(@RequestBody PostDTO postDTO,@PathVariable("post_id") int post_id) {
+    public ResponseEntity<PostDTO> deletePost(@PathVariable("post_id") int post_id) {
         PostDTO result = postService.deletePost(post_id);
         return ResponseEntity.of(Optional.of(result));
     }
