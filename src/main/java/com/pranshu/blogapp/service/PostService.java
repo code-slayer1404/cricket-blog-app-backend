@@ -5,8 +5,8 @@ import java.util.List;
 import com.pranshu.blogapp.payload.PostDTO;
 
 public interface PostService {
-    PostDTO addPost(PostDTO postDTO,int userId);
-    PostDTO updatePost(PostDTO postDTO,int postId);
+    PostDTO addPost(PostDTO postDTO,int userId,String token);
+    PostDTO updatePost(PostDTO postDTO,int postId, String token);
 
     
     PostDTO getPost(int postId);
@@ -14,5 +14,5 @@ public interface PostService {
     List<PostDTO> getAllPosts();
 
 
-    PostDTO deletePost(int id);
+    PostDTO deletePost(int id, String token);
 }
