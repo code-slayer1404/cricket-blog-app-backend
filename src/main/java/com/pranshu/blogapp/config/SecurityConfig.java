@@ -83,7 +83,7 @@ public class SecurityConfig {
     public CorsConfigurationSource getCorsConfigurationSource(){
         CorsConfiguration configuration = new CorsConfiguration();
         // configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:[5173]"));
-        configuration.setAllowedOriginPatterns(Arrays.asList("http://myawsbucket1404.s3-website.ap-south-1.amazonaws.com/","http://localhost:[5173]"));
+        configuration.setAllowedOriginPatterns(Arrays.asList("http://blogappfrontendbucket.s3-website.ap-south-1.amazonaws.com","http://localhost:[5173]"));
         configuration.setAllowedMethods(Arrays.asList("*"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setExposedHeaders(Arrays.asList("*"));

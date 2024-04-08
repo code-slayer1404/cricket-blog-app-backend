@@ -48,3 +48,16 @@ public class User {
     private List<Post> posts = new ArrayList<>();
     
 }
+
+
+/*
+ * The extra characters you’re seeing, \", are escape characters used to
+ * denote a ". In this case, they’re being used to specify the name of
+ * the table as a String in the @Table annotation
+ * 
+ *  " "user" " will cause issue of which opening (") is for which closing (")
+ *  so we do  "  /"user/"   "
+ * 
+ *  we do so because user may be a reserved keyword in some databases so by this,
+ *  we specify we mean the string "user" 
+ */
