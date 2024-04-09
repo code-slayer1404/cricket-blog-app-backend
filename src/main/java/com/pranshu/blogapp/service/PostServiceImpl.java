@@ -1,5 +1,6 @@
 package com.pranshu.blogapp.service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,6 +41,7 @@ public class PostServiceImpl implements PostService {
         Post post = modelMapper.map(postDTO, Post.class);
 
         post.setUser(user);
+        post.setDate(new Date());
         user.getPosts().add(post);
         Post savedPost = postRepo.save(post);
         userRepo.save(user);
@@ -58,7 +60,7 @@ public class PostServiceImpl implements PostService {
 
         post.setTitle(postDTO.getTitle());
         post.setContent(postDTO.getContent());
-        post.setDate(postDTO.getDate());
+        post.setDate(new Date());
         
         Post updatedPost = postRepo.save(post);
         return modelMapper.map(updatedPost, PostDTO.class);
