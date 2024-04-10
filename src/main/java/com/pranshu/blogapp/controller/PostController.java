@@ -28,13 +28,7 @@ public class PostController {
     @Autowired
     private PostService postService;
 
-    /**
-     * Add a new post for a specific user.
-     *
-     * @param postDTO the post data transfer object
-     * @param user_id the ID of the user
-     * @return the response entity containing the added post data transfer object
-     */
+    
     @PostMapping("/users/{user_id}/posts")
     public ResponseEntity<PostDTO> addPost(@RequestBody PostDTO postDTO, @PathVariable("user_id") int user_id,@RequestHeader("Authorization") String token) {
         if (token.startsWith("Bearer ")) {
@@ -45,13 +39,7 @@ public class PostController {
         return new ResponseEntity<PostDTO>(result, HttpStatus.CREATED);
     }
 
-    /**
-     * Updates a post with the given postDTO and post_id.
-     *
-     * @param postDTO the post data to update
-     * @param post_id the id of the post to update
-     * @return the updated PostDTO wrapped in a ResponseEntity
-     */
+
     @PutMapping("/posts/{post_id}")
     public ResponseEntity<PostDTO> updatePost(@RequestBody PostDTO postDTO, @PathVariable("post_id") int post_id,
             @RequestHeader("Authorization") String token) {
@@ -62,12 +50,7 @@ public class PostController {
         return ResponseEntity.of(Optional.of(result));
     }
 
-    /**
-     * Deletes a post by its ID.
-     *
-     * @param post_id the ID of the post to be deleted
-     * @return the deleted post as a ResponseEntity
-     */
+    
     @DeleteMapping("/posts/{post_id}")
     public ResponseEntity<PostDTO> deletePost(@PathVariable("post_id") int post_id,
             @RequestHeader("Authorization") String token) {
@@ -79,12 +62,7 @@ public class PostController {
     }
     
 
-    /**
-     * Retrieves a list of post data transfer objects by user ID.
-     *
-     * @param  user_id	The ID of the user to retrieve posts for
-     * @return         	An optional containing the list of post data transfer objects
-     */
+
     // @GetMapping("/users/{user_id}/posts")
     // public ResponseEntity<List<PostDTO>> getPostsByUser(@PathVariable("user_id") int user_id) {
     //     List<PostDTO> result = postService.getPostsByUser(user_id);
@@ -97,11 +75,7 @@ public class PostController {
     }
 
 
-    /**
-     * Retrieves all posts.
-     *
-     * @return         	List of PostDTO objects
-     */
+    
 
     // @GetMapping("/posts")
     // public ResponseEntity<List<PostDTO>> getAllPosts() {
@@ -115,12 +89,7 @@ public class PostController {
         return ResponseEntity.of(Optional.of(result));
     }
 
-    /**
-     * Retrieves a post by its ID.
-     *
-     * @param  post_id	the ID of the post to retrieve
-     * @return         	the post DTO wrapped in a ResponseEntity
-     */
+    
     @GetMapping("/posts/{post_id}")
     public ResponseEntity<PostDTO> getPost(@PathVariable("post_id") int post_id) {
         PostDTO result = postService.getPost(post_id);
