@@ -3,6 +3,7 @@ package com.pranshu.blogapp.service;
 import java.util.List;
 
 import com.pranshu.blogapp.payload.PostDTO;
+import com.pranshu.blogapp.util.PagedResponse;
 
 public interface PostService {
     PostDTO addPost(PostDTO postDTO,int userId,String token);
@@ -11,9 +12,9 @@ public interface PostService {
     
     PostDTO getPost(int postId);
     List<PostDTO> getPostsByUser(int userId);
-    List<PostDTO> getPostsByUser(int userId,int pageNumber);
+    PagedResponse<PostDTO> getPostsByUser(int userId,int pageNumber);
     List<PostDTO> getAllPosts();
-    List<PostDTO> getAllPosts(int pageNumber);
+    PagedResponse<PostDTO> getAllPosts(int pageNumber);
 
 
     PostDTO deletePost(int id, String token);

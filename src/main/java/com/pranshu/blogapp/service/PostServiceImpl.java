@@ -21,6 +21,7 @@ import com.pranshu.blogapp.payload.PostDTO;
 import com.pranshu.blogapp.repository.PostRepo;
 import com.pranshu.blogapp.repository.UserRepo;
 import com.pranshu.blogapp.security.UserValidator;
+import com.pranshu.blogapp.util.PagedResponse;
 
 @Service
 @SuppressWarnings(value = {"unused"})
@@ -102,7 +103,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostDTO> getPostsByUser(int userId,int pageNumber){
+    public PagedResponse<PostDTO> getPostsByUser(int userId,int pageNumber){
         int pageSize = 10;
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("date").descending());
 
@@ -111,11 +112,15 @@ public class PostServiceImpl implements PostService {
         });
 
         Page<Post> posts = postRepo.findAllByUser(user,pageable);
-        return posts.stream().map(
+        int totalPages = posts.getTotalPages();
+        int currentPage = posts.getNumber()+1;
+        List<PostDTO> postDTOs = posts.stream().map(
             (e)->{
                 return modelMapper.map(e,PostDTO.class);
             }
         ).collect(Collectors.toList());
+
+        return new PagedResponse<>(currentPage,totalPages,postDTOs);
     }
 
 
@@ -141,14 +146,21 @@ public class PostServiceImpl implements PostService {
 
 
     //not tested
-    public List<PostDTO> getAllPosts(int pageNumber) {
+    public PagedResponse<PostDTO> getAllPosts(int pageNumber) {
         int pageSize = 10;
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("date").descending());
+        
         Page<Post> postsPage = postRepo.findAll(pageable);
+        int totalPages = postsPage.getTotalPages();
+        int currentPage = postsPage.getNumber()+1;
 
-        return postsPage.getContent().stream()
+
+        List<PostDTO> postDTOs = postsPage.getContent().stream()
                 .map(post -> modelMapper.map(post, PostDTO.class))
                 .collect(Collectors.toList());
+
+        PagedResponse<PostDTO> pagedResponse = new PagedResponse<>(currentPage,totalPages,postDTOs);
+        return pagedResponse;
     }
 
 }
