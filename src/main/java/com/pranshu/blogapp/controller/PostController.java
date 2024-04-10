@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pranshu.blogapp.payload.PostDTO;
@@ -83,9 +84,14 @@ public class PostController {
      * @param  user_id	The ID of the user to retrieve posts for
      * @return         	An optional containing the list of post data transfer objects
      */
+    // @GetMapping("/users/{user_id}/posts")
+    // public ResponseEntity<List<PostDTO>> getPostsByUser(@PathVariable("user_id") int user_id) {
+    //     List<PostDTO> result = postService.getPostsByUser(user_id);
+    //     return ResponseEntity.of(Optional.of(result));
+    // }
     @GetMapping("/users/{user_id}/posts")
-    public ResponseEntity<List<PostDTO>> getPostsByUser(@PathVariable("user_id") int user_id) {
-        List<PostDTO> result = postService.getPostsByUser(user_id);
+    public ResponseEntity<List<PostDTO>> getPostsByUser(@PathVariable("user_id") int user_id,@RequestParam(defaultValue = "1") int pageNumber) {
+        List<PostDTO> result = postService.getPostsByUser(user_id,pageNumber);
         return ResponseEntity.of(Optional.of(result));
     }
 
@@ -95,9 +101,16 @@ public class PostController {
      *
      * @return         	List of PostDTO objects
      */
+
+    // @GetMapping("/posts")
+    // public ResponseEntity<List<PostDTO>> getAllPosts() {
+    //     List<PostDTO> result = postService.getAllPosts();
+    //     return ResponseEntity.of(Optional.of(result));
+    // }
+
     @GetMapping("/posts")
-    public ResponseEntity<List<PostDTO>> getAllPosts() {
-        List<PostDTO> result = postService.getAllPosts();
+    public ResponseEntity<List<PostDTO>> getAllPosts(@RequestParam(defaultValue = "1") int pageNumber) {
+        List<PostDTO> result = postService.getAllPosts(pageNumber);
         return ResponseEntity.of(Optional.of(result));
     }
 

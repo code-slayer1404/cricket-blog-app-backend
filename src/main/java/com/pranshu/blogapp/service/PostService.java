@@ -11,7 +11,9 @@ public interface PostService {
     
     PostDTO getPost(int postId);
     List<PostDTO> getPostsByUser(int userId);
+    List<PostDTO> getPostsByUser(int userId,int pageNumber);
     List<PostDTO> getAllPosts();
+    List<PostDTO> getAllPosts(int pageNumber);
 
 
     PostDTO deletePost(int id, String token);
