@@ -41,27 +41,49 @@ public class AuthController {
     private ModelMapper modelMapper;
 
 
+    /**
+     * This is the login endpoint of the API. It accepts a JSON payload
+     * containing a username and password, and attempts to authenticate
+     * the user using the Spring Security AuthenticationManager.
+     *
+     * If the authentication is successful, it generates a JSON Web Token
+     * (JWT) using the provided username, and maps the authenticated user
+     * to a UserDTO object using the ModelMapper. It then creates a
+     * JWTAuthResponse object containing the token and userDTO, and
+     * returns this as a ResponseEntity with a 200 HTTP status code.
+     *
+     * If the authentication fails, it returns a ResponseEntity with a 403
+     * HTTP status code.
+     *
+     * @param request The JSON payload containing the username and password.
+     * @return A ResponseEntity containing a JWTAuthResponse object if the
+     *         authentication was successful, or an HTTP 403 status code if not.
+     */
     @PostMapping("/login")
     public ResponseEntity<JWTAuthResponse> login(@RequestBody JWTAuthRequest request) {
+        // Attempt to authenticate the user using their provided credentials
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+
+        // If the authentication was successful
         if(authentication.isAuthenticated()){
+            // Generate a JWT using the provided username
             String token = jwtTokenHelper.generateToken(request.getUsername());
 
-            JWTAuthResponse response = new JWTAuthResponse();
-            response.setToken(token);
-
+            // Map the authenticated user to a UserDTO object
             User user = userRepo.findByUsername(request.getUsername()).orElseGet(null);
-
             UserDTO userDTO = modelMapper.map(user, UserDTO.class);
 
+            // Create a JWTAuthResponse object containing the token and userDTO
+            JWTAuthResponse response = new JWTAuthResponse();
+            response.setToken(token);
             response.setUserDTO(userDTO);
 
-            
-
+            // Return the JWTAuthResponse as a ResponseEntity with a 200 HTTP status code
             return new ResponseEntity<JWTAuthResponse>(response,HttpStatus.OK);
-        }else{
+        }
+        // If the authentication failed, return a ResponseEntity with a 403 HTTP status code
+        else{
             return new ResponseEntity<JWTAuthResponse>(HttpStatus.FORBIDDEN);
-
         }
     }
 

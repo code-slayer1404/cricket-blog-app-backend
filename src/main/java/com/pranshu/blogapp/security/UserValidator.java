@@ -19,6 +19,7 @@ public class UserValidator {
     private PostRepo postRepo;
 
     public User validateUser(int userId,String token){
+        
         String username = jwtTokenHelper.extractUsername(token);
         User currentUser = userRepo.findByUsername(username).orElseThrow(() -> {
             throw new CustomException("Something went wrong!");

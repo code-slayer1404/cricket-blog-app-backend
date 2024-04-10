@@ -6,6 +6,12 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
 import org.springframework.stereotype.Service;
 
 import com.pranshu.blogapp.entity.Post;
@@ -95,6 +101,23 @@ public class PostServiceImpl implements PostService {
         ).collect(Collectors.toList());
     }
 
+    @Override
+    public List<PostDTO> getPostsByUser(int userId,int pageNumber){
+        int pageSize = 10;
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("date").descending());
+
+        User user = userRepo.findById(userId).orElseThrow(() -> {
+            throw new CustomException("User not found with id: " + userId);
+        });
+
+        Page<Post> posts = postRepo.findAllByUser(user,pageable);
+        return posts.stream().map(
+            (e)->{
+                return modelMapper.map(e,PostDTO.class);
+            }
+        ).collect(Collectors.toList());
+    }
+
 
 
     @Override
@@ -105,7 +128,7 @@ public class PostServiceImpl implements PostService {
         return modelMapper.map(post, PostDTO.class);
     }
 
-    @Override
+    // @Override
     public List<PostDTO> getAllPosts() {
         List<Post> posts = postRepo.findAll();
 
@@ -114,6 +137,18 @@ public class PostServiceImpl implements PostService {
                 return modelMapper.map(e, PostDTO.class);
             }
         ).collect(Collectors.toList());
+    }
+
+
+    //not tested
+    public List<PostDTO> getAllPosts(int pageNumber) {
+        int pageSize = 10;
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("date").descending());
+        Page<Post> postsPage = postRepo.findAll(pageable);
+
+        return postsPage.getContent().stream()
+                .map(post -> modelMapper.map(post, PostDTO.class))
+                .collect(Collectors.toList());
     }
 
 }
