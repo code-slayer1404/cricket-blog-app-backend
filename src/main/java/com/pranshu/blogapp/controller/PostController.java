@@ -1,6 +1,6 @@
 package com.pranshu.blogapp.controller;
 
-import java.util.List;
+
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.pranshu.blogapp.payload.PostDTO;
 import com.pranshu.blogapp.service.PostService;
+import com.pranshu.blogapp.util.PagedResponse;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -90,8 +91,8 @@ public class PostController {
     //     return ResponseEntity.of(Optional.of(result));
     // }
     @GetMapping("/users/{user_id}/posts")
-    public ResponseEntity<List<PostDTO>> getPostsByUser(@PathVariable("user_id") int user_id,@RequestParam(defaultValue = "1") int pageNumber) {
-        List<PostDTO> result = postService.getPostsByUser(user_id,pageNumber);
+    public ResponseEntity<PagedResponse<PostDTO>> getPostsByUser(@PathVariable("user_id") int user_id,@RequestParam(defaultValue = "1") int pageNumber) {
+        PagedResponse<PostDTO> result = postService.getPostsByUser(user_id,pageNumber);
         return ResponseEntity.of(Optional.of(result));
     }
 
@@ -109,8 +110,8 @@ public class PostController {
     // }
 
     @GetMapping("/posts")
-    public ResponseEntity<List<PostDTO>> getAllPosts(@RequestParam(defaultValue = "1") int pageNumber) {
-        List<PostDTO> result = postService.getAllPosts(pageNumber);
+    public ResponseEntity<PagedResponse<PostDTO>> getAllPosts(@RequestParam(defaultValue = "1") int pageNumber) {
+        PagedResponse<PostDTO> result = postService.getAllPosts(pageNumber);
         return ResponseEntity.of(Optional.of(result));
     }
 
