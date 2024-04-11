@@ -8,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.pranshu.blogapp.constant.AppStringConstants;
 import com.pranshu.blogapp.entity.User;
 
 public class MyUserDetails implements UserDetails {
@@ -21,7 +22,7 @@ public class MyUserDetails implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         if (user.getRoles() == null) {
-            authorities.add(new SimpleGrantedAuthority("USER")); // beacuse early users did not have any roles
+            authorities.add(new SimpleGrantedAuthority(AppStringConstants.USER.getValue())); // beacuse early users did not have any roles
         } else {
             for (String role : user.getRoles()) {
                 SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(role);

@@ -14,14 +14,15 @@ import org.springframework.data.domain.Sort;
 
 import org.springframework.stereotype.Service;
 
+import com.pranshu.blogapp.constant.AppIntegerConstants;
 import com.pranshu.blogapp.entity.Post;
 import com.pranshu.blogapp.entity.User;
 import com.pranshu.blogapp.exception.CustomException;
+import com.pranshu.blogapp.payload.PagedResponse;
 import com.pranshu.blogapp.payload.PostDTO;
 import com.pranshu.blogapp.repository.PostRepo;
 import com.pranshu.blogapp.repository.UserRepo;
 import com.pranshu.blogapp.security.UserValidator;
-import com.pranshu.blogapp.util.PagedResponse;
 
 @Service
 @SuppressWarnings(value = {"unused"})
@@ -104,7 +105,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PagedResponse<PostDTO> getPostsByUser(int userId,int pageNumber){
-        int pageSize = 10;
+        int pageSize = AppIntegerConstants.PAGE_SIZE.getValue();
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("date").descending());
 
         User user = userRepo.findById(userId).orElseThrow(() -> {
@@ -133,21 +134,17 @@ public class PostServiceImpl implements PostService {
         return modelMapper.map(post, PostDTO.class);
     }
 
-    // @Override
     public List<PostDTO> getAllPosts() {
-        List<Post> posts = postRepo.findAll();
-
-        return posts.stream().map(
-            (e)->{
-                return modelMapper.map(e, PostDTO.class);
-            }
-        ).collect(Collectors.toList());
+        List<Post> allPosts = postRepo.findAll();
+        return allPosts.stream()
+                .map(post -> modelMapper.map(post, PostDTO.class))
+                .collect(Collectors.toList());
     }
 
 
     //not tested
     public PagedResponse<PostDTO> getAllPosts(int pageNumber) {
-        int pageSize = 10;
+        int pageSize = AppIntegerConstants.PAGE_SIZE.getValue();
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by("date").descending());
         
         Page<Post> postsPage = postRepo.findAll(pageable);
