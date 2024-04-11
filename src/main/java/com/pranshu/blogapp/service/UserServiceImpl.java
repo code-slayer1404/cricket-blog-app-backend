@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.pranshu.blogapp.constant.AppStringConstants;
 import com.pranshu.blogapp.entity.User;
 import com.pranshu.blogapp.payload.UserDTO;
 import com.pranshu.blogapp.repository.UserRepo;
@@ -29,7 +30,7 @@ public class UserServiceImpl implements UserService {
     public UserDTO addUser(UserDTO userDTO) {
         User user = myMapper.toUser(userDTO);
         user.setRoles(new ArrayList<>());
-        user.getRoles().add("USER"); // check
+        user.getRoles().add(AppStringConstants.USER.getValue()); // check
         User savedUser = userRepo.save(user);
         return myMapper.toUserDTO(savedUser);
     }

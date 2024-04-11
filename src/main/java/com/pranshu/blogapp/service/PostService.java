@@ -2,8 +2,8 @@ package com.pranshu.blogapp.service;
 
 import java.util.List;
 
+import com.pranshu.blogapp.payload.PagedResponse;
 import com.pranshu.blogapp.payload.PostDTO;
-import com.pranshu.blogapp.util.PagedResponse;
 
 public interface PostService {
     PostDTO addPost(PostDTO postDTO,int userId,String token);

@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.pranshu.blogapp.payload.PagedResponse;
 import com.pranshu.blogapp.payload.PostDTO;
 import com.pranshu.blogapp.service.PostService;
-import com.pranshu.blogapp.util.PagedResponse;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;

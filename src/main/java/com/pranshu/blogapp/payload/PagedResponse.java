@@ -1,4 +1,4 @@
-package com.pranshu.blogapp.util;
+package com.pranshu.blogapp.payload;
 
 
 import java.util.List;
