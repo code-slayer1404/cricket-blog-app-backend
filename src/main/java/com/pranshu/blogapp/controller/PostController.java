@@ -40,7 +40,8 @@ public class PostController {
     }
 
 
-    @PutMapping("/posts/{post_id}")
+    // mapping changed also change on frontend
+    @PutMapping("/users/{user_id}/posts/{post_id}")
     public ResponseEntity<PostDTO> updatePost(@RequestBody PostDTO postDTO, @PathVariable("post_id") int post_id,
             @RequestHeader("Authorization") String token) {
         if (token.startsWith("Bearer ")) {
@@ -50,8 +51,9 @@ public class PostController {
         return ResponseEntity.of(Optional.of(result));
     }
 
-    
-    @DeleteMapping("/posts/{post_id}")
+    // mapping changed also change on frontend
+
+    @DeleteMapping("/users/{user_id}/posts/{post_id}")
     public ResponseEntity<PostDTO> deletePost(@PathVariable("post_id") int post_id,
             @RequestHeader("Authorization") String token) {
         if (token.startsWith("Bearer ")) {
@@ -83,13 +85,14 @@ public class PostController {
     //     return ResponseEntity.of(Optional.of(result));
     // }
 
+    // mapping changed also change on frontend
     @GetMapping("/posts")
     public ResponseEntity<PagedResponse<PostDTO>> getAllPosts(@RequestParam(defaultValue = "1") int pageNumber) {
         PagedResponse<PostDTO> result = postService.getAllPosts(pageNumber);
         return ResponseEntity.of(Optional.of(result));
     }
 
-    
+    // mapping changed also change on frontend
     @GetMapping("/posts/{post_id}")
     public ResponseEntity<PostDTO> getPost(@PathVariable("post_id") int post_id) {
         PostDTO result = postService.getPost(post_id);
