@@ -15,7 +15,6 @@ import lombok.Setter;
 public class PagedResponse<T> {
     private int currentPage;
     private int totalPages;
-    private List<T> posts;
+    private List<T> content;
 
-    
 }

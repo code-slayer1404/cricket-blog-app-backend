@@ -39,25 +39,29 @@ public class User {
     @Builder.Default
     private List<String> roles = new ArrayList<>();
     // public int getId() {
-    //     return id;
+    // return id;
     // }
 
     @Builder.Default
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Post> posts = new ArrayList<>();
-    
-}
 
+    @Builder.Default
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Comment> comments = new ArrayList<>();
+
+}
 
 /*
  * The extra characters you’re seeing, \", are escape characters used to
  * denote a ". In this case, they’re being used to specify the name of
  * the table as a String in the @Table annotation
  * 
- *  " "user" " will cause issue of which opening (") is for which closing (")
- *  so we do  "  /"user/"   "
+ * " "user" " will cause issue of which opening (") is for which closing (")
+ * so we do "  /"user/"   "
  * 
- *  we do so because user may be a reserved keyword in some databases so by this,
- *  we specify we mean the string "user" 
+ * we do so because user may be a reserved keyword in some databases so by this,
+ * we specify we mean the string "user"
  */
