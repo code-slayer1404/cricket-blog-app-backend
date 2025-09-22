@@ -61,7 +61,7 @@ public class AuthController {
      */
     @PostMapping("/login")
     public ResponseEntity<JWTAuthResponse> login(@RequestBody JWTAuthRequest request) {
-        // Attempt to authenticate the user using their provided credentials
+        // Attempt to authenticate the user using their provided credentials (we need to do this as its not form login where its automatically handled internally)
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 
         // If the authentication was successful

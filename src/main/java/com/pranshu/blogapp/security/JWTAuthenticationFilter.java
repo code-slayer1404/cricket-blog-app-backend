@@ -10,6 +10,8 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Service;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.pranshu.blogapp.exception.CustomException;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -44,6 +46,8 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         String token = null;
         if(authHeader != null && authHeader.startsWith("Bearer ")){
             token = authHeader.substring(7);
+        }else{
+            throw new CustomException("Authorization header does not start with 'Bearer '");
         }
 
         /*

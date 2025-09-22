@@ -7,11 +7,11 @@ import com.pranshu.blogapp.payload.PagedResponse;
 
 public interface CommentService {
 
-    public CommentDTO addComment(CommentDTO commentDTO,int postId,String token);
+    public CommentDTO addComment(CommentDTO commentDTO,int postId);
 
-    public CommentDTO updateComment(int comment_id, CommentDTO commentDTO,String token);
+    public CommentDTO updateComment(int comment_id, CommentDTO commentDTO);
 
-    public CommentDTO deleteComment(int comment_id,String token);
+    public CommentDTO deleteComment(int comment_id);
 
     public CommentDTO getComment(int commentId);
 
