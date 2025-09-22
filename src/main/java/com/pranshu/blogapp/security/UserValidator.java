@@ -1,6 +1,7 @@
 package com.pranshu.blogapp.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.pranshu.blogapp.entity.Comment;
@@ -10,11 +11,12 @@ import com.pranshu.blogapp.exception.CustomException;
 import com.pranshu.blogapp.repository.CommentRepo;
 import com.pranshu.blogapp.repository.PostRepo;
 import com.pranshu.blogapp.repository.UserRepo;
+import com.pranshu.blogapp.util.MyUserDetails;
 
 @Component
 public class UserValidator {
-    @Autowired
-    private JWTTokenHelper jwtTokenHelper;
+    // @Autowired
+    // private JWTTokenHelper jwtTokenHelper;
     @Autowired
     private UserRepo userRepo;
     @Autowired
@@ -22,12 +24,14 @@ public class UserValidator {
     @Autowired
     private CommentRepo commentRepo;
 
-    public User validateUser(int userId,String token){
+    public User validateUserAgainstPathUserId(int userId){
         
-        String username = jwtTokenHelper.extractUsername(token);
+        // String username = jwtTokenHelper.extractUsername(token);
+        String username = ((MyUserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
         User currentUser = userRepo.findByUsername(username).orElseThrow(() -> {
             throw new CustomException("Something went wrong!");
         });
+
 
         if (currentUser.getId() != userId) {
             throw new CustomException("Invalid user");
@@ -36,8 +40,11 @@ public class UserValidator {
     }
 
 
-    public Post validatePost(int postId,String token){
-        String username = jwtTokenHelper.extractUsername(token);
+    public Post validatePost(int postId){
+        // String username = jwtTokenHelper.extractUsername(token);
+        String username = ((MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
+                .getUsername();
+
         User currentUser = userRepo.findByUsername(username).orElseThrow(() -> {
             throw new CustomException("Something went wrong while validating post! Could not fetch/find user!");
         });
@@ -51,9 +58,12 @@ public class UserValidator {
         return currentPost;
     }
 
-    public Comment validateComment(int commentId,String token){
+    public Comment validateComment(int commentId){
 
-        String username = jwtTokenHelper.extractUsername(token);
+        // String username = jwtTokenHelper.extractUsername(token);
+        String username = ((MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
+                .getUsername();
+
         User currentUser = userRepo.findByUsername(username).orElseThrow(() -> {
             throw new CustomException("Something went wrong while validating comment! Could not fetch/find user!");
         });

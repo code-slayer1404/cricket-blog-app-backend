@@ -37,10 +37,10 @@ public class PostServiceImpl implements PostService {
     private UserValidator userValidator;
     
     @Override
-    public PostDTO addPost(PostDTO postDTO,int userId,String token) {
+    public PostDTO addPost(PostDTO postDTO,int userId) {
 
         // to ensure the current user is the one making the request
-        User currentUser = userValidator.validateUser(userId, token);
+        User currentUser = userValidator.validateUserAgainstPathUserId(userId);
 
         User user = userRepo.findById(userId).orElseThrow(()->{
             throw new CustomException("User not found with id: "+userId);
@@ -58,13 +58,10 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostDTO updatePost(PostDTO postDTO,int postId, String token) {
+    public PostDTO updatePost(PostDTO postDTO,int postId) {
 
-        Post requestedPost = userValidator.validatePost(postId, token);
-
-        Post post = postRepo.findById(postId).orElseThrow(() -> {
-            throw new CustomException("Post not found with id: " + postId);
-        });
+        // Post requestedPost = userValidator.validatePost(postId, token);
+        Post post = userValidator.validatePost(postId);
 
         post.setTitle(postDTO.getTitle());
         post.setContent(postDTO.getContent());
@@ -77,13 +74,11 @@ public class PostServiceImpl implements PostService {
 
 
     @Override
-    public PostDTO deletePost(int id, String token) {
+    public PostDTO deletePost(int id) {
 
-        Post requestedPost = userValidator.validatePost(id, token);
-
-        Post post = postRepo.findById(id).orElseThrow(() -> {
-            throw new CustomException("Post not found with id: " + id);
-        });
+        // Post requestedPost = userValidator.validatePost(id, token);
+        Post post = userValidator.validatePost(id);
+        
         postRepo.delete(post);
         return modelMapper.map(post, PostDTO.class);
     }

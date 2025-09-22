@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.pranshu.blogapp.constant.AppIntegerConstants;
@@ -23,8 +24,8 @@ import com.pranshu.blogapp.repository.CommentRepo;
 import com.pranshu.blogapp.repository.PostRepo;
 import com.pranshu.blogapp.repository.UserRepo;
 
-import com.pranshu.blogapp.security.JWTTokenHelper;
 import com.pranshu.blogapp.security.UserValidator;
+import com.pranshu.blogapp.util.MyUserDetails;
 @Service
 public class CommentServiceImpl implements CommentService {
     @Autowired
@@ -35,8 +36,7 @@ public class CommentServiceImpl implements CommentService {
     private CommentRepo commentRepo;
     @Autowired
     private UserValidator userValidator;
-    @Autowired
-    private JWTTokenHelper jwtTokenHelper;
+
     @Autowired
     private ModelMapper modelMapper;
 
@@ -49,7 +49,7 @@ public class CommentServiceImpl implements CommentService {
      * @return              the saved comment data transfer object
      */
     @Override
-    public CommentDTO addComment(CommentDTO commentDTO, int postId, String token) {
+    public CommentDTO addComment(CommentDTO commentDTO, int postId) {
 
         // fetching post by id
         Post post = postRepo.findById(postId).orElseThrow(() -> {
@@ -57,7 +57,9 @@ public class CommentServiceImpl implements CommentService {
         });
 
         // extracting user from token
-        String username = jwtTokenHelper.extractUsername(token);
+        // String username = jwtTokenHelper.extractUsername(token);
+        String username = ((MyUserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+
         User currentUser = userRepo.findByUsername(username).orElseThrow(() -> {
             throw new CustomException("Error adding comment. User not found with username: " + username);
         });
@@ -94,8 +96,9 @@ public class CommentServiceImpl implements CommentService {
      * @return               the updated comment details as a CommentDTO object
      */
     @Override
-    public CommentDTO updateComment(int comment_id, CommentDTO commentDTO, String token) {
-        Comment comment = userValidator.validateComment(comment_id, token);
+    public CommentDTO updateComment(int comment_id, CommentDTO commentDTO) {
+        // Comment comment = userValidator.validateComment(comment_id, token);
+        Comment comment = userValidator.validateComment(comment_id);
 
         comment.setContent(commentDTO.getContent());
         comment.setDate(new Date());
@@ -113,9 +116,10 @@ public class CommentServiceImpl implements CommentService {
      * @return               the details of the deleted comment as a CommentDTO object
      */
     @Override
-    public CommentDTO deleteComment(int comment_id, String token) {
+    public CommentDTO deleteComment(int comment_id) {
         // Validate the comment for deletion
-        Comment comment = userValidator.validateComment(comment_id, token);
+        // Comment comment = userValidator.validateComment(comment_id, token);
+        Comment comment = userValidator.validateComment(comment_id);
 
         // Delete the comment from the repository
         commentRepo.delete(comment);
