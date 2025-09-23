@@ -63,7 +63,11 @@ public class SecurityConfig {
             authz.requestMatchers("/api/auth/**").permitAll().requestMatchers(HttpMethod.GET).permitAll().anyRequest().authenticated();
         }).exceptionHandling(handling -> handling.authenticationEntryPoint(jwtAuthenticationEntryPoint))
         .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
+        // Configures security for a stateless REST API using JWT-based authentication.
+        // Public endpoints (e.g., /api/auth/** and all GET requests) are permitted
+        // without authentication.
+        // All other requests require a valid Authentication object in the SecurityContext.
+        // This setup bypasses session-based login flows and relies entirely on token validation.
                 
         http.addFilterBefore(getJwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
@@ -79,6 +83,8 @@ public class SecurityConfig {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
+    // CORS is a client-side security feature implemented by browsers, not a
+    // server-side restriction that would prevent any client.
     @Bean
     public CorsConfigurationSource getCorsConfigurationSource(){
         CorsConfiguration configuration = new CorsConfiguration();
