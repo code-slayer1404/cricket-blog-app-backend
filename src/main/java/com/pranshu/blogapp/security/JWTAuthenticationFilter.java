@@ -32,6 +32,9 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
+
+        System.out.println("Jwt Filter was executed");
+
         /*
          * Step 1: Extract the Authorization Header from the request
          * The Authorization Header should contain a Bearer Token, which is a string starting with "Bearer ".
@@ -82,7 +85,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 /*
-                 * Step 8: Set the Authentication in the Security Context
+                 * Step 8: Set the Authentication in the Security Context for each request
                  * We set the Authentication in the Security Context with the UsernamePasswordAuthenticationToken.
                  */
                 SecurityContextHolder.getContext().setAuthentication(authToken);

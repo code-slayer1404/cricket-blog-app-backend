@@ -11,6 +11,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Component
+// Handles authentication failures for protected endpoints in a stateless REST API.
+// Sends a 401 Unauthorized response instead of redirecting, which is ideal for token-based authentication.
+// Not required in session-based form login flows, where Spring Security redirects to the login page by default.
+
 public class JWTAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     @Override
