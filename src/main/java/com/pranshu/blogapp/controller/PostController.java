@@ -27,11 +27,24 @@ public class PostController {
     @Autowired
     private PostService postService;
 
-    
+    /**
+     * Note: Although the incoming PostDTO could technically include a User field,
+     * it will be ignored during deserialization because the Post entity
+     * uses @JsonIgnore
+     * on its 'user' field instead of @JsonBackReference (used together with @JsonManagedReference).
+     *
+     * This is intentional — we do not rely on client-supplied user data for
+     * security reasons.
+     * Instead, we always fetch the authenticated user from the SecurityContext and
+     * manually
+     * set it on the Post entity before saving. This ensures ownership is
+     * server-controlled
+     * and avoids any risk of spoofed or incorrect user references.
+     */
     @PostMapping("/users/{user_id}/posts")
-    public ResponseEntity<PostDTO> addPost(@RequestBody PostDTO postDTO, @PathVariable("user_id") int user_id) {
+    public ResponseEntity<PostDTO> addPost(@RequestBody PostDTO postDTO) {
 
-        PostDTO result = postService.addPost(postDTO, user_id);
+        PostDTO result = postService.addPost(postDTO);
         // return ResponseEntity.of(Optional.of(result));
         return new ResponseEntity<PostDTO>(result, HttpStatus.CREATED);
     }

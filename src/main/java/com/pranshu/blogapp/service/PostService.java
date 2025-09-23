@@ -6,7 +6,7 @@ import com.pranshu.blogapp.payload.PagedResponse;
 import com.pranshu.blogapp.payload.PostDTO;
 
 public interface PostService {
-    PostDTO addPost(PostDTO postDTO,int userId);
+    PostDTO addPost(PostDTO postDTO);
     PostDTO updatePost(PostDTO postDTO,int postId);
 
     
