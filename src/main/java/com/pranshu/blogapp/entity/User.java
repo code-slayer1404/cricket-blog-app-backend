@@ -34,9 +34,11 @@ public class User {
     private String name;
     @Column(unique = true)
     private String username;
+    @JsonIgnore
     private String password;
 
     @Builder.Default
+    @JsonIgnore
     private List<String> roles = new ArrayList<>();
     // public int getId() {
     // return id;

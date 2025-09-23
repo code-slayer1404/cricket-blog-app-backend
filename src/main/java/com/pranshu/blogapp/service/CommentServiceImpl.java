@@ -24,7 +24,7 @@ import com.pranshu.blogapp.repository.CommentRepo;
 import com.pranshu.blogapp.repository.PostRepo;
 import com.pranshu.blogapp.repository.UserRepo;
 
-import com.pranshu.blogapp.security.UserValidator;
+import com.pranshu.blogapp.security.UserAuthorizationGuard;
 import com.pranshu.blogapp.util.MyUserDetails;
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -35,7 +35,7 @@ public class CommentServiceImpl implements CommentService {
     @Autowired
     private CommentRepo commentRepo;
     @Autowired
-    private UserValidator userValidator;
+    private UserAuthorizationGuard userValidator;
 
     @Autowired
     private ModelMapper modelMapper;
