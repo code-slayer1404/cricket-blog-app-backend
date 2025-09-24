@@ -85,7 +85,118 @@ public class AuthController {
         else{
             return new ResponseEntity<JWTAuthResponse>(HttpStatus.FORBIDDEN);
         }
+        // no need to save authentication object in spring security context here. that was not job of this method and even if we did no pint as it will immediately be wiped as soon as response is returned
     }
+
+
+
+    
+    //  Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(),request.getPassword()));
+    //  SecurityContextHolder.getContext().setAuthentication(authentication);
+    //  
+    //  //vs
+    //  
+    //  UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+    //  UsernamePasswordAuthenticationToken authToken = newUsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
+    //  authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+    //  SecurityContextHolder.getContext().setAuthentication(authToken); 
+    //  
+    //  //whats the difference?
+    //  
+    //  in the first is spring automatically verifies username and password
+    //  using authentication manager using a dao authentication provider.
+    //  suitable for session based flows(not needed in form login).
+    //  while the second one is more suitable for stateless jwt flows. It is
+    //  manual and does not verifies username or passwor as security
+    //  guarantee comes from token itself.
+    //  is my understanding correct?
+    //  
+    //  ChatGPT said:
+    //  
+    //  Yes — your understanding is basically spot on, but let me refine it a
+    //  little for clarity:
+    //  
+    //  Case 1: Using AuthenticationManager.authenticate(...)
+    //  Authentication authentication = authenticationManager.authenticate(
+    //  new UsernamePasswordAuthenticationToken(request.getUsername(),
+    //  request.getPassword())
+    //  );
+    //  SecurityContextHolder.getContext().setAuthentication(authentication);
+    //  
+    //  
+    //  Here you are delegating to Spring Security’s authentication
+    //  mechanism.
+    //  
+    //  The AuthenticationManager (often backed by DaoAuthenticationProvider) will:
+    //  
+    //  Load the user via UserDetailsService.
+    //  
+    //  Verify the raw password against the stored password using the
+    //  configured PasswordEncoder.
+    //  
+    //  Throw an exception if invalid.
+    //  
+    //  If successful, you get back a fully-authenticated Authentication
+    //  object.
+    //  
+    //  ✅ This is the normal login flow (e.g., form login, session-based
+    //  auth).
+    //  
+    //  The authentication step itself guarantees password verification.
+    //  
+    //  Case 2: Manually building an Authentication object
+    //  UserDetails userDetails =
+    //  userDetailsService.loadUserByUsername(username);
+    //  
+    //  UsernamePasswordAuthenticationToken authToken =
+    //  new UsernamePasswordAuthenticationToken(userDetails, null,
+    //  userDetails.getAuthorities());
+    //  authToken.setDetails(new
+    //  WebAuthenticationDetailsSource().buildDetails(request));
+    //  
+    //  SecurityContextHolder.getContext().setAuthentication(authToken);
+    //  
+    //  
+    //  You are not verifying the password here.
+    //  
+    //  You’re manually putting an Authentication into the context, based on
+    //  trusted information (like a valid JWT).(in jwt filter I am doing this only
+    //  after token as been validated)
+    //  
+    //  The UserDetailsService is often used only to rehydrate user
+    //  roles/permissions from the DB (or cache), not to validate
+    //  credentials.
+    //  
+    //  ✅ This is the JWT/stateless flow:
+    //  
+    //  The JWT itself proves authenticity (signed token).
+    //  
+    //  Since password verification already happened at login (when the token
+    //  was issued), no need to check it again.
+    //  
+    //  Security relies on the cryptographic verification of the token
+    //  instead of username+password.
+    //  
+    //  🔑 Key Difference
+    //  
+    //  First approach = verification step included (username + password
+    //  checked).
+    //  
+    //  Second approach = no verification step (you assume credentials are
+    //  already proven by some external guarantee like a JWT).
+    //  
+    //  👉 So yes — your summary is correct:
+    //  
+    //  Case 1: session-based / login flows → Spring does the heavy lifting,
+    //  checks credentials.
+    //  
+    //  Case 2: stateless/JWT flows → You trust the token and manually set
+    //  authentication, no password check.
+    //  
+    //  Would you like me to also illustrate how the second flow typically
+    //  looks inside a JWT filter (where you extract the token, validate it,
+    //  and then set the context)? That would make the difference even
+    //  clearer.
 
     @PostMapping("/register")
     public ResponseEntity<UserDTO> register(@RequestBody UserDTO userDTO){
