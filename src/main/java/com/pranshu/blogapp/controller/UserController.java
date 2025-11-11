@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.pranshu.blogapp.payload.JWTAuthRequest;
 import com.pranshu.blogapp.payload.UserDTO;
 import com.pranshu.blogapp.service.UserService;
 
@@ -24,7 +25,11 @@ public class UserController {
     private UserService userService;
 
     @PostMapping
-    public ResponseEntity<UserDTO> addUser(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<UserDTO> addUser(@RequestBody JWTAuthRequest jwtAuthRequest) {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUsername(jwtAuthRequest.getUsername());
+        userDTO.setPassword(jwtAuthRequest.getPassword());
+        userDTO.setName("Bad User");
         UserDTO result = userService.addUser(userDTO);
         return ResponseEntity.of(Optional.of(result));
     }

@@ -35,7 +35,7 @@ public class CommentServiceImpl implements CommentService {
     @Autowired
     private CommentRepo commentRepo;
     @Autowired
-    private UserAuthorizationGuard userValidator;
+    private UserAuthorizationGuard userAuthorizationGuard;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -97,8 +97,8 @@ public class CommentServiceImpl implements CommentService {
      */
     @Override
     public CommentDTO updateComment(int comment_id, CommentDTO commentDTO) {
-        // Comment comment = userValidator.validateComment(comment_id, token);
-        Comment comment = userValidator.validateComment(comment_id);
+        // If logged in user is not the owner of the comment, throw an exception        
+        Comment comment = userAuthorizationGuard.validateComment(comment_id);
 
         comment.setContent(commentDTO.getContent());
         comment.setDate(new Date());
@@ -118,8 +118,8 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentDTO deleteComment(int comment_id) {
         // Validate the comment for deletion
-        // Comment comment = userValidator.validateComment(comment_id, token);
-        Comment comment = userValidator.validateComment(comment_id);
+        // If logged in user is not the owner of the comment, throw an exception
+        Comment comment = userAuthorizationGuard.validateComment(comment_id);
 
         // Delete the comment from the repository
         commentRepo.delete(comment);
