@@ -139,7 +139,6 @@ public class UserControllerTest {
         verify(userService, times(1)).getUser(userId);
     }
 
-
     @Test
     public void testGetAllUsers() throws Exception {
         // Mocking userService.getAllUsers method

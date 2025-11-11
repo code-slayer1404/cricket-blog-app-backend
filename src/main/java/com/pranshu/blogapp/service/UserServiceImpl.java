@@ -31,6 +31,7 @@ public class UserServiceImpl implements UserService {
         User user = myMapper.toUser(userDTO);
         user.setRoles(new ArrayList<>());
         user.getRoles().add(AppStringConstants.USER.getValue()); // check
+        user.setPassword(bCryptPasswordEncoder.encode(userDTO.getPassword())); // encode password
         User savedUser = userRepo.save(user);
         return myMapper.toUserDTO(savedUser);
     }

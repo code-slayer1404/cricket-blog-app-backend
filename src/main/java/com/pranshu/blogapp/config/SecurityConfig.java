@@ -42,7 +42,6 @@ public class SecurityConfig {
         return new MyUserDetailsService();
     }
 
-
     @Bean
     public BCryptPasswordEncoder getBCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
@@ -68,12 +67,10 @@ public class SecurityConfig {
         // without authentication.
         // All other requests require a valid Authentication object in the SecurityContext.
         // This setup bypasses session-based login flows and relies entirely on token validation.
+        // The .authenticated() method ensures that only authenticated users can access protected endpoints.
+        // It does so by checking the presence of an Authentication object in the SecurityContext.
                 
         http.addFilterBefore(getJwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
-
-        
-
-        
 
         return http.build();
     }
