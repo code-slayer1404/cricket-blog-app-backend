@@ -7,9 +7,8 @@ WORKDIR /app
 # Copy everything into the container
 COPY . /app
 
-# # Build the app using Maven wrapper
-# RUN ./mvnw package
+# Build the app and skip tests
 RUN ./mvnw package -DskipTests
 
-# Run the jar file
-CMD ["java", "-jar", "target/cricket-blog-app-backend.jar"]
+# Run the actual jar file
+CMD ["java", "-jar", "target/blog-app-0.0.1-SNAPSHOT.jar"]
