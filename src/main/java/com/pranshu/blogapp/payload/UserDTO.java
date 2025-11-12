@@ -3,7 +3,7 @@ package com.pranshu.blogapp.payload;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+// import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,7 +22,7 @@ public class UserDTO {
 
     private String name;
     private String username;
-    @JsonIgnore
+    // @JsonIgnore
     private String password; // pitfall is that no userDTO in controller argument will have this as its not deserialized i.e. @RequestBody will not work for this field. 
     @Builder.Default
     private List<String> roles= new ArrayList<>();
