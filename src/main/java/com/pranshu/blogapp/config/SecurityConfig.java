@@ -87,6 +87,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         // configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:[5173]"));
         configuration.setAllowedOriginPatterns(Arrays.asList("https://code-slayer1404.github.io","http://blogappfrontendbucket.s3-website.ap-south-1.amazonaws.com","http://localhost:[5173]"));
+        configuration.setAllowedOrigins(Arrays.asList("https://code-slayer1404.github.io","http://blogappfrontendbucket.s3-website.ap-south-1.amazonaws.com","http://localhost:[5173]"));
         configuration.setAllowedMethods(Arrays.asList("*"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setExposedHeaders(Arrays.asList("*"));
