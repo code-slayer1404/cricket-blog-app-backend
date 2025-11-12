@@ -86,6 +86,7 @@ public class UserServiceImpl implements UserService {
             User savedUser = userRepo.save(user);
             return myMapper.toUserDTO(savedUser);
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             System.out.println("user cannot be registered! try with a different email");
             return null;
         }
