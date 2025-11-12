@@ -81,6 +81,7 @@ public class UserServiceImpl implements UserService {
     public UserDTO registerUser(UserDTO userDTO) {
         try {
             User user = myMapper.toUser(userDTO);
+            System.out.println(user.getUsername()+user.getPassword());
             user.setPassword(bCryptPasswordEncoder.encode(userDTO.getPassword()));
             user.getRoles().add("USER");
             User savedUser = userRepo.save(user);
