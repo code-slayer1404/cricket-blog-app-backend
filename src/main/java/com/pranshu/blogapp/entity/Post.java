@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -35,12 +37,14 @@ public class Post {
     private String content;
     private Date date;
 
-    @ManyToOne
+    // @ManyToOne
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JsonBackReference("user-post")
     private User user;
 
 
     @Builder.Default
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @JsonManagedReference("post-comment")
     private List<Comment> comments = new ArrayList<>();
 }

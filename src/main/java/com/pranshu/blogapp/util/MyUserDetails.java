@@ -1,14 +1,14 @@
 package com.pranshu.blogapp.util;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.pranshu.blogapp.constant.AppStringConstants;
+import com.pranshu.blogapp.constant.Role;
 import com.pranshu.blogapp.entity.User;
 
 public class MyUserDetails implements UserDetails {
@@ -20,16 +20,14 @@ public class MyUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        if (user.getRoles() == null) {
-            authorities.add(new SimpleGrantedAuthority(AppStringConstants.USER.getValue())); // beacuse early users did not have any roles
-        } else {
-            for (String role : user.getRoles()) {
-                SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(role);
-                authorities.add(simpleGrantedAuthority);
-            }
+        Set<Role> roles = user.getRoles();
+        if (roles.isEmpty()) { // not needed. just for safety.
+            return Set.of(new SimpleGrantedAuthority(Role.ROLE_USER.name()));
         }
-        return authorities;
+        return roles.stream()
+                .map(Enum::name)
+                .map(SimpleGrantedAuthority::new) // its constructor expects String not Role
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -62,4 +60,20 @@ public class MyUserDetails implements UserDetails {
         return true;
     }
 
+    public String getName() {
+        return this.user.getName();
+    }
+
+    public int getId() {
+        return this.user.getId();
+    }
+
+}
+
+class Test {
+    public static void main(String[] args) {
+        SimpleGrantedAuthority s1 = new SimpleGrantedAuthority("ROLE_USER");
+        System.out.println(s1);
+        System.out.println(s1.getAuthority());
+    }
 }

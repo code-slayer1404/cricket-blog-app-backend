@@ -3,8 +3,8 @@ package com.pranshu.blogapp.controller;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,23 +14,25 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.pranshu.blogapp.payload.JWTAuthRequest;
+import com.pranshu.blogapp.payload.UserAuthDTO;
 import com.pranshu.blogapp.payload.UserDTO;
 import com.pranshu.blogapp.service.UserService;
 
 @RestController()
 @RequestMapping("/users")
 public class UserController {
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
+    UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    // deprecated. only for testing
     @PostMapping
-    public ResponseEntity<UserDTO> addUser(@RequestBody JWTAuthRequest jwtAuthRequest) {
-        UserDTO userDTO = new UserDTO();
-        userDTO.setUsername(jwtAuthRequest.getUsername());
-        userDTO.setPassword(jwtAuthRequest.getPassword());
-        userDTO.setName("Bad User");
-        UserDTO result = userService.addUser(userDTO);
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserDTO> addUser(@RequestBody UserAuthDTO userAuthDTO) {
+        userAuthDTO.setName("Admin Added User: "+userAuthDTO.getName());
+        UserDTO result = userService.addUser(userAuthDTO);
         return ResponseEntity.of(Optional.of(result));
     }
 

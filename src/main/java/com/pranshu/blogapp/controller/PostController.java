@@ -3,7 +3,6 @@ package com.pranshu.blogapp.controller;
 
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,8 +23,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RestController
 @RequestMapping("/api")
 public class PostController {
-    @Autowired
-    private PostService postService;
+    private final PostService postService;
+
+    PostController(PostService postService) {
+        this.postService = postService;
+    }
 
     /**
      * Note: Although the incoming PostDTO could technically include a User field,
@@ -93,6 +95,7 @@ public class PostController {
         PagedResponse<PostDTO> result = postService.getAllPosts(pageNumber);
         return ResponseEntity.of(Optional.of(result));
     }
+
 
     // mapping changed also change on frontend
     @GetMapping("/posts/{post_id}")
