@@ -2,6 +2,8 @@ package com.pranshu.blogapp.entity;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,8 +25,10 @@ public class Comment {
     private Date date;
 
     @ManyToOne
+    @JsonBackReference("user-comment")
     private User user;
 
     @ManyToOne
+    @JsonBackReference("post-comment")
     private Post post;
 }

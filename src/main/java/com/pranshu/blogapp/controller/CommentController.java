@@ -1,6 +1,5 @@
 package com.pranshu.blogapp.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,8 +19,11 @@ import com.pranshu.blogapp.service.CommentService;
 @RestController
 @RequestMapping("/api")
 public class CommentController {
-    @Autowired
-    private CommentService commentService;
+    private final CommentService commentService;
+
+    CommentController(CommentService commentService) {
+        this.commentService = commentService;
+    }
 
     @GetMapping("/posts/{post_id}/comments/{comment_id}")
     public ResponseEntity<CommentDTO> getComment(@PathVariable("comment_id") int comment_id) {
