@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.pranshu.blogapp.constant.AppIntegerConstants;
@@ -17,28 +17,28 @@ import com.pranshu.blogapp.entity.Post;
 import com.pranshu.blogapp.entity.User;
 import com.pranshu.blogapp.payload.CommentDTO;
 import com.pranshu.blogapp.payload.PagedResponse;
-import com.pranshu.blogapp.exception.CustomException;
-
+import com.pranshu.blogapp.exception.ResourceNotFoundException;
 import com.pranshu.blogapp.repository.CommentRepo;
 import com.pranshu.blogapp.repository.PostRepo;
 import com.pranshu.blogapp.repository.UserRepo;
 
-import com.pranshu.blogapp.security.JWTTokenHelper;
-import com.pranshu.blogapp.security.UserValidator;
+import com.pranshu.blogapp.security.UserAuthorizationGuard;
+import com.pranshu.blogapp.util.MyUserDetails;
 @Service
 public class CommentServiceImpl implements CommentService {
-    @Autowired
-    private UserRepo userRepo;
-    @Autowired
-    private PostRepo postRepo;
-    @Autowired
-    private CommentRepo commentRepo;
-    @Autowired
-    private UserValidator userValidator;
-    @Autowired
-    private JWTTokenHelper jwtTokenHelper;
-    @Autowired
-    private ModelMapper modelMapper;
+    private final UserRepo userRepo;
+    private final PostRepo postRepo;
+    private final CommentRepo commentRepo;
+    private final UserAuthorizationGuard userAuthorizationGuard;
+    private final ModelMapper modelMapper;
+
+    CommentServiceImpl(UserRepo userRepo, PostRepo postRepo, CommentRepo commentRepo, UserAuthorizationGuard userAuthorizationGuard, ModelMapper modelMapper) {
+        this.userRepo = userRepo;
+        this.postRepo = postRepo;
+        this.commentRepo = commentRepo;
+        this.userAuthorizationGuard = userAuthorizationGuard;
+        this.modelMapper = modelMapper;
+    }
 
     /**
      * Add a comment to the given post and return the saved comment DTO.
@@ -49,17 +49,19 @@ public class CommentServiceImpl implements CommentService {
      * @return              the saved comment data transfer object
      */
     @Override
-    public CommentDTO addComment(CommentDTO commentDTO, int postId, String token) {
+    public CommentDTO addComment(CommentDTO commentDTO, int postId) {
 
         // fetching post by id
         Post post = postRepo.findById(postId).orElseThrow(() -> {
-            throw new CustomException("Post not found with id: " + postId);
+            throw new ResourceNotFoundException("Post not found with id: " + postId);
         });
 
         // extracting user from token
-        String username = jwtTokenHelper.extractUsername(token);
+        // String username = jwtTokenHelper.extractUsername(token);
+        String username = ((MyUserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+
         User currentUser = userRepo.findByUsername(username).orElseThrow(() -> {
-            throw new CustomException("Error adding comment. User not found with username: " + username);
+            throw new ResourceNotFoundException("Error adding comment. User not found with username: " + username);
         });
 
 
@@ -94,8 +96,9 @@ public class CommentServiceImpl implements CommentService {
      * @return               the updated comment details as a CommentDTO object
      */
     @Override
-    public CommentDTO updateComment(int comment_id, CommentDTO commentDTO, String token) {
-        Comment comment = userValidator.validateComment(comment_id, token);
+    public CommentDTO updateComment(int comment_id, CommentDTO commentDTO) {
+        // If logged in user is not the owner of the comment, throw an exception        
+        Comment comment = userAuthorizationGuard.validateComment(comment_id);
 
         comment.setContent(commentDTO.getContent());
         comment.setDate(new Date());
@@ -113,9 +116,10 @@ public class CommentServiceImpl implements CommentService {
      * @return               the details of the deleted comment as a CommentDTO object
      */
     @Override
-    public CommentDTO deleteComment(int comment_id, String token) {
+    public CommentDTO deleteComment(int comment_id) {
         // Validate the comment for deletion
-        Comment comment = userValidator.validateComment(comment_id, token);
+        // If logged in user is not the owner of the comment, throw an exception
+        Comment comment = userAuthorizationGuard.validateComment(comment_id);
 
         // Delete the comment from the repository
         commentRepo.delete(comment);
@@ -131,7 +135,7 @@ public class CommentServiceImpl implements CommentService {
      * @param  postId       the ID of the post
      * @param  pageNumber   the page number
      * @return              a paged response containing commentDTO objects
-     * @throws CustomException  if the post with the given ID is not found
+     * @throws ResourceNotFoundException  if the post with the given ID is not found
      */
     @Override
     public PagedResponse<CommentDTO> getCommentsByPost(int postId, int pageNumber) {
@@ -141,7 +145,7 @@ public class CommentServiceImpl implements CommentService {
 
         // Find the post by ID
         Post post = postRepo.findById(postId).orElseThrow(() -> {
-            throw new CustomException("Post not found with id: " + postId);
+            throw new ResourceNotFoundException("Post not found with id: " + postId);
         });
 
         // Fetch the comments related to the post
@@ -166,7 +170,7 @@ public class CommentServiceImpl implements CommentService {
     public CommentDTO getComment(int commentId) {
         // Fetch the comment by ID
         Comment comment = commentRepo.findById(commentId).orElseThrow(() -> {
-            throw new CustomException("Comment not found with id: " + commentId);
+            throw new ResourceNotFoundException("Comment not found with id: " + commentId);
         });
 
         // Map the comment to CommentDTO object

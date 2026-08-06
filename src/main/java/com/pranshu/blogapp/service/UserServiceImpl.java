@@ -1,15 +1,15 @@
 package com.pranshu.blogapp.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.pranshu.blogapp.constant.AppStringConstants;
+import com.pranshu.blogapp.constant.Role;
 import com.pranshu.blogapp.entity.User;
+import com.pranshu.blogapp.payload.JWTAuthRequest;
+import com.pranshu.blogapp.payload.UserAuthDTO;
 import com.pranshu.blogapp.payload.UserDTO;
 import com.pranshu.blogapp.repository.UserRepo;
 import com.pranshu.blogapp.util.MyMapper;
@@ -17,20 +17,21 @@ import com.pranshu.blogapp.util.MyMapper;
 @Service
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private UserRepo userRepo;
+    private final UserRepo userRepo;
+    private final MyMapper myMapper;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    @Autowired
-    private MyMapper myMapper;
-
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    UserServiceImpl(UserRepo userRepo, MyMapper myMapper, BCryptPasswordEncoder bCryptPasswordEncoder) {
+        this.userRepo = userRepo;
+        this.myMapper = myMapper;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+    }
 
     @Override
-    public UserDTO addUser(UserDTO userDTO) {
+    public UserDTO addUser(UserAuthDTO userDTO) {
         User user = myMapper.toUser(userDTO);
-        user.setRoles(new ArrayList<>());
-        user.getRoles().add(AppStringConstants.USER.getValue()); // check
+        user.getRoles().add(Role.ROLE_USER); // check
+        user.setPassword(bCryptPasswordEncoder.encode(userDTO.getPassword())); // encode password
         User savedUser = userRepo.save(user);
         return myMapper.toUserDTO(savedUser);
     }
@@ -76,15 +77,36 @@ public class UserServiceImpl implements UserService {
         return usersDTO;
     }
 
+    // @Override
+    // public UserDTO registerUser(UserAuthDTO userDTO) {
+    //     try {
+    //         User user = myMapper.toUser(userDTO);
+    //         // System.out.println(user.getUsername() + user.getPassword());
+    //         user.setPassword(bCryptPasswordEncoder.encode(userDTO.getPassword()));
+    //         user.getRoles().add(Role.ROLE_USER);
+    //         User savedUser = userRepo.save(user);
+    //         return myMapper.toUserDTO(savedUser);
+    //     } catch (Exception e) {
+    //         System.out.println(e.getMessage());
+    //         System.out.println("user cannot be registered! try with a different email");
+    //         return null;
+    //     }
+    // }
+
     @Override
-    public UserDTO registerUser(UserDTO userDTO) {
+    public UserDTO registerUser(JWTAuthRequest jwtAuthRequest) {
         try {
-            User user = myMapper.toUser(userDTO);
-            user.setPassword(bCryptPasswordEncoder.encode(userDTO.getPassword()));
-            user.getRoles().add("USER");
+            User user = User.builder()
+            .username(jwtAuthRequest.getUsername())
+            .password(bCryptPasswordEncoder.encode(jwtAuthRequest.getPassword()))
+            .build();
+
+            user.getRoles().add(Role.ROLE_USER);
+            
             User savedUser = userRepo.save(user);
             return myMapper.toUserDTO(savedUser);
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             System.out.println("user cannot be registered! try with a different email");
             return null;
         }

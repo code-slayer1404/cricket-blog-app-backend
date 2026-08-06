@@ -3,7 +3,6 @@ package com.pranshu.blogapp.controller;
 
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,21 +19,34 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 
 @RestController
 @RequestMapping("/api")
 public class PostController {
-    @Autowired
-    private PostService postService;
+    private final PostService postService;
 
-    
+    PostController(PostService postService) {
+        this.postService = postService;
+    }
+
+    /**
+     * Note: Although the incoming PostDTO could technically include a User field,
+     * it will be ignored during deserialization because the Post entity
+     * uses @JsonIgnore
+     * on its 'user' field instead of @JsonBackReference (used together with @JsonManagedReference).
+     *
+     * This is intentional — we do not rely on client-supplied user data for
+     * security reasons.
+     * Instead, we always fetch the authenticated user from the SecurityContext and
+     * manually
+     * set it on the Post entity before saving. This ensures ownership is
+     * server-controlled
+     * and avoids any risk of spoofed or incorrect user references.
+     */
     @PostMapping("/users/{user_id}/posts")
-    public ResponseEntity<PostDTO> addPost(@RequestBody PostDTO postDTO, @PathVariable("user_id") int user_id,@RequestHeader("Authorization") String token) {
-        if (token.startsWith("Bearer ")) {
-            token = token.substring(7);
-        }
-        PostDTO result = postService.addPost(postDTO, user_id,token);
+    public ResponseEntity<PostDTO> addPost(@RequestBody PostDTO postDTO) {
+
+        PostDTO result = postService.addPost(postDTO);
         // return ResponseEntity.of(Optional.of(result));
         return new ResponseEntity<PostDTO>(result, HttpStatus.CREATED);
     }
@@ -42,28 +54,20 @@ public class PostController {
 
     // mapping changed also change on frontend
     @PutMapping("/users/{user_id}/posts/{post_id}")
-    public ResponseEntity<PostDTO> updatePost(@RequestBody PostDTO postDTO, @PathVariable("post_id") int post_id,
-            @RequestHeader("Authorization") String token) {
-        if (token.startsWith("Bearer ")) {
-            token = token.substring(7);
-        }
-        PostDTO result = postService.updatePost(postDTO, post_id,token);
+    public ResponseEntity<PostDTO> updatePost(@RequestBody PostDTO postDTO, @PathVariable("post_id") int post_id) {
+
+        PostDTO result = postService.updatePost(postDTO, post_id);
         return ResponseEntity.of(Optional.of(result));
     }
 
     // mapping changed also change on frontend
 
     @DeleteMapping("/users/{user_id}/posts/{post_id}")
-    public ResponseEntity<PostDTO> deletePost(@PathVariable("post_id") int post_id,
-            @RequestHeader("Authorization") String token) {
-        if (token.startsWith("Bearer ")) {
-            token = token.substring(7);
-        }
-        PostDTO result = postService.deletePost(post_id,token);
+    public ResponseEntity<PostDTO> deletePost(@PathVariable("post_id") int post_id) {
+        PostDTO result = postService.deletePost(post_id);
         return ResponseEntity.of(Optional.of(result));
     }
     
-
 
     // @GetMapping("/users/{user_id}/posts")
     // public ResponseEntity<List<PostDTO>> getPostsByUser(@PathVariable("user_id") int user_id) {
@@ -91,6 +95,7 @@ public class PostController {
         PagedResponse<PostDTO> result = postService.getAllPosts(pageNumber);
         return ResponseEntity.of(Optional.of(result));
     }
+
 
     // mapping changed also change on frontend
     @GetMapping("/posts/{post_id}")

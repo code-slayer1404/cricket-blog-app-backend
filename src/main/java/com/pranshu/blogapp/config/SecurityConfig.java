@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -19,8 +20,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 
 import java.util.Arrays;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
+import com.pranshu.blogapp.repository.UserRepo;
 import com.pranshu.blogapp.security.JWTAuthenticationEntryPoint;
 import com.pranshu.blogapp.security.JWTAuthenticationFilter;
 import com.pranshu.blogapp.security.JWTTokenHelper;
@@ -28,20 +28,25 @@ import com.pranshu.blogapp.util.MyUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private JWTAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final UserRepo userRepo;
+    private final JWTTokenHelper jwtTokenHelper;
+    private final JWTAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
-    @Autowired
-    private JWTTokenHelper jwtTokenHelper;
+
+    SecurityConfig(UserRepo userRepo, JWTTokenHelper jwtTokenHelper, JWTAuthenticationEntryPoint jwtAuthenticationEntryPoint) {
+        this.userRepo = userRepo;
+        this.jwtTokenHelper = jwtTokenHelper;
+        this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
+    }
     
 
     @Bean
     public UserDetailsService getUserDetailsService() {
-        return new MyUserDetailsService();
+        return new MyUserDetailsService(userRepo);
     }
-
 
     @Bean
     public BCryptPasswordEncoder getBCryptPasswordEncoder() {
@@ -50,7 +55,8 @@ public class SecurityConfig {
 
     @Bean
     public JWTAuthenticationFilter getJwtAuthenticationFilter(){
-        return new JWTAuthenticationFilter(getUserDetailsService(),jwtTokenHelper);
+        // return new JWTAuthenticationFilter(getUserDetailsService(),jwtTokenHelper);
+        return new JWTAuthenticationFilter(jwtTokenHelper);
     }
 
     @Bean
@@ -63,13 +69,12 @@ public class SecurityConfig {
             authz.requestMatchers("/api/auth/**").permitAll().requestMatchers(HttpMethod.GET).permitAll().anyRequest().authenticated();
         }).exceptionHandling(handling -> handling.authenticationEntryPoint(jwtAuthenticationEntryPoint))
         .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
+        
+        // This setup bypasses session-based login flows and relies entirely on token validation.
+        // The .authenticated() method ensures that only authenticated users can access protected endpoints.
+        // It does so by checking the presence of an Authentication object in the SecurityContext.
                 
         http.addFilterBefore(getJwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
-
-        
-
-        
 
         return http.build();
     }
@@ -79,16 +84,27 @@ public class SecurityConfig {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
+    // CORS (Cross-Origin Resource Sharing) is a browser-enforced security feature.
+    // Browsers block frontend apps from calling APIs hosted on a different domain
+    // unless the backend explicitly allows it.
+    //
+    // This backend configuration provides the rules (allowed origins, methods,
+    // headers, and credential policies) that browsers check before letting a
+    // frontend read API responses.
+    //
+    // In short: the backend tells the browser which domains are trusted to
+    // communicate with this API, preventing unauthorized websites from accessing
+    // user data through the browser.
+
     @Bean
     public CorsConfigurationSource getCorsConfigurationSource(){
         CorsConfiguration configuration = new CorsConfiguration();
-        // configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:[5173]"));
-        configuration.setAllowedOriginPatterns(Arrays.asList("http://blogappfrontendbucket.s3-website.ap-south-1.amazonaws.com","http://localhost:[5173]"));
+        configuration.setAllowedOriginPatterns(Arrays.asList("https://code-slayer1404.github.io","http://blogappfrontendbucket.s3-website.ap-south-1.amazonaws.com","http://localhost:[5173]"));
         configuration.setAllowedMethods(Arrays.asList("*"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setExposedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
-        // configuration.setMaxAge(5000l);
+        configuration.setMaxAge(1800L);
         
 
         UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
@@ -98,19 +114,3 @@ public class SecurityConfig {
 
     
 }
-/*
- * Yes, you're correct. `Customizer` is a functional interface in Spring
- * Security¹. It's a callback interface that accepts a single input argument and
- * returns no result¹.
- * 
- * The `Customizer` interface can be used with various methods in Spring
- * Security, not just `httpBasic`¹. The `withDefaults()` method of `Customizer`
- * returns a `Customizer` that does not alter the input argument¹, which
- * effectively applies the default settings¹.
- * 
- * So, you can use `Customizer.withDefaults()` with other methods in Spring
- * Security to apply the default settings¹.
- * 
- * 
- * 
- */

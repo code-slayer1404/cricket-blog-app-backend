@@ -14,12 +14,13 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.pranshu.blogapp.entity.User;
+import com.pranshu.blogapp.payload.JWTAuthRequest;
+import com.pranshu.blogapp.payload.UserAuthDTO;
 import com.pranshu.blogapp.payload.UserDTO;
 import com.pranshu.blogapp.repository.UserRepo;
 import com.pranshu.blogapp.util.MyMapper;
@@ -29,13 +30,12 @@ import static org.assertj.core.api.Assertions.*;
 @ExtendWith(MockitoExtension.class)
 public class TestUserService {
 
-    @Mock
+    @Mock // will be inserted into the mock userService
     private UserRepo userRepo;
 
     @Mock
     private MyMapper myMapper;
 
-    @InjectMocks
     private UserServiceImpl userService;
 
     @Mock
@@ -44,6 +44,11 @@ public class TestUserService {
     @BeforeEach
     public void init() {
         System.out.println("I was executed");
+
+        this.userService = new UserServiceImpl(this.userRepo, this.myMapper, this.bCryptPasswordEncoder);
+
+
+        // lenient because some tests may not call userRepo.save
         lenient().when(userRepo.save(any(User.class))).thenAnswer(invocation -> {
             return invocation.getArgument(0);
         }); // mocking userRepo.save(User);
@@ -52,7 +57,7 @@ public class TestUserService {
                 invocation -> {
                     User user = invocation.getArgument(0);
                     UserDTO userDTO = UserDTO.builder().id(user.getId()).name(user.getName())
-                            .username(user.getUsername()).password(user.getPassword()).build();
+                            .username(user.getUsername()).build();
                     return userDTO;
                 }); // mocking myMapper.toUserDTO(User)
 
@@ -60,22 +65,31 @@ public class TestUserService {
                 invocation -> {
                     UserDTO userDTO = invocation.getArgument(0);
                     return User.builder().id(userDTO.getId()).name(userDTO.getName()).username(userDTO.getUsername())
-                            .password(userDTO.getPassword()).build();
+                            .build();
+                }); // mocking myMapper.toUser(UserDTO)
+
+
+
+        lenient().when(myMapper.toUser(any(UserAuthDTO.class))).thenAnswer(
+                invocation -> {
+                    UserAuthDTO userDTO = invocation.getArgument(0);
+                    return User.builder().id(userDTO.getId()).name(userDTO.getName()).username(userDTO.getUsername()).password(userDTO.getPassword())
+                            .build();
                 }); // mocking myMapper.toUser(UserDTO)
 
     }
 
-    // this method is actually not important for our app. we plan to remove it
-    @Test
-    public void UserService_addUser_UserDTO() {
-        UserDTO userDTO = UserDTO.builder().id(1).name("user1").username("username1").password("pass1").build();
+    // // this method is actually not important for our app. we plan to remove it
+    // @Test
+    // public void UserService_addUser_UserDTO() {
+    // UserAuthDTO userDTO =
+    // UserAuthDTO.builder().id(1).name("user1").username("username1").password("pass1").build();
 
-        UserDTO addedUserDTO = userService.addUser(userDTO);
+    // UserDTO addedUserDTO = userService.addUser(userDTO);
 
-        assertThat(addedUserDTO.getId()).isGreaterThan(0);
+    // assertThat(addedUserDTO.getId()).isGreaterThan(0);
 
-    }
-
+    // }
 
     @Test
     public void userService_updateUser_UserDTO() {
@@ -93,27 +107,32 @@ public class TestUserService {
     }
 
     @Test
-    public void userService_deleteUser_UserDTO(){
+    public void userService_deleteUser_UserDTO() {
         int user_id = 1;
         User mockUser = User.builder().id(user_id).name("test").username("test_username").password("test123").build();
 
         when(userRepo.findById(user_id)).thenReturn(Optional.of(mockUser));
         // when(userRepo.delete(mockUser)).thenReturn(null);
 
-
         userService.delete(user_id);
 
-        verify(userRepo,times(1)).findById(user_id);
-        verify(userRepo,times(1)).delete(mockUser);
-        verify(myMapper,times(1)).toUserDTO(mockUser);
+        verify(userRepo, times(1)).findById(user_id);
+        verify(userRepo, times(1)).delete(mockUser);
+        verify(myMapper, times(1)).toUserDTO(mockUser);
     }
 
     @Test
-    public void userService_getUser_UserDTO(){
+    public void userService_getUser_UserDTO() {
         int user_id = 1;
-        User mockUser = User.builder().id(user_id).name("test").username("test_username").password("test123").build();
+        User mockUser = User.builder()  
+                                .id(user_id)
+                                .name("test")
+                                .username("test_username")
+                                .password("test123")
+                                .build();
 
-        when(userRepo.findById(user_id)).thenReturn(Optional.of(mockUser));
+        when(userRepo.findById(user_id))
+        .thenReturn(Optional.of(mockUser));
 
         UserDTO retrivedUser = userService.getUser(user_id);
 
@@ -122,11 +141,26 @@ public class TestUserService {
     }
 
     @Test
-    public void userService_getAllUsers_ListOfUserDTO(){
+    public void userService_getAllUsers_ListOfUserDTO() {
         List<User> users = new ArrayList<>();
-        User mockUser1 = User.builder().id(1).name("test1").username("test_username1").password("test123").build();
-        User mockUser2 = User.builder().id(2).name("test2").username("test_username2").password("test456").build();
-        User mockUser3 = User.builder().id(3).name("test3").username("test_username3").password("test789").build();
+        User mockUser1 = User.builder()
+                                .id(1)
+                                .name("test1")
+                                .username("test_username1")
+                                .password("test123")
+                                .build();
+        User mockUser2 = User.builder()
+                                .id(2)
+                                .name("test2")
+                                .username("test_username2")
+                                .password("test456")
+                                .build();
+        User mockUser3 = User.builder()
+                                .id(3)
+                                .name("test3")
+                                .username("test_username3")
+                                .password("test789")
+                                .build();
 
         users.add(mockUser1);
         users.add(mockUser2);
@@ -140,16 +174,21 @@ public class TestUserService {
     }
 
     @Test
-    public void userService_register_UserDTO(){
-        UserDTO userDTO = UserDTO.builder().id(1).name("user1").username("username1").password("pass1").build();
+    public void userService_register_UserDTO() {
+        JWTAuthRequest jwtAuthRequest = new JWTAuthRequest("username1","pass1");
+        // UserAuthDTO.builder().id(1).name("user1").username("username1").password("pass1").build();
         when(bCryptPasswordEncoder.encode(anyString())).thenReturn("hashed_password");
 
-        UserDTO registeresUserDTO = userService.registerUser(userDTO);
+        UserDTO registeresUserDTO = userService.registerUser(jwtAuthRequest);
 
         assertThat(registeresUserDTO).isNotNull();
-        assertThat(registeresUserDTO.getPassword()).isEqualTo("hashed_password");
+        // assertThat(registeresUserDTO.getPassword()).isEqualTo("hashed_password");
 
     }
 
-
 }
+
+// Use lenient stubbing when a mock setup is shared across multiple tests but
+// isn't strictly executed by all of them.
+// simple when for a seup shared by many tests will throw errors if any one of
+// those tests dont call it or call it differently
